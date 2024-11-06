@@ -24,6 +24,14 @@ endif()
 # Set CMAKE_PREFIX_PATH to point to libtorch
 set(CMAKE_PREFIX_PATH "${LIBTORCH_ROOT}")
 
+# Option to use ONNX or Torch
+option(USE_ONNX "Enable ONNX inference" ON)
+
+# Set compiler definitions based on selected inference type
+if(USE_ONNX)
+    add_definitions(-DUSE_ONNX)
+endif()
+
 # Option to use CUDA
 option(USE_CUDA "Enable CUDA support" ON)
 
@@ -47,7 +55,8 @@ include_directories(${LIBTORCH_ROOT}/include)
 # Add executable
 add_executable(xfeat_slam 
     src/main.cc
-    src/model_inference.cc
+    src/model_inference_onnx.cc
+    src/model_inference_torch.cc
     src/load_images.cc
     src/interpolate_sparse_2d.cc
     src/xfeat.cc

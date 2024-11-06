@@ -3,9 +3,14 @@
 
 #include <opencv2/opencv.hpp>
 #include <onnxruntime_cxx_api.h>
-#include "model_inference.h"
 #include "interpolate_sparse_2d.h"
 #include <torch/torch.h> 
+
+#ifdef USE_ONNX
+#include "model_inference_onnx.h"
+#else
+#include "model_inference_torch.h"
+#endif
 
 // Struct to store keypoint data
 struct KeypointData {
@@ -41,7 +46,11 @@ public:
 
 
 private:
-    ModelInference model_inference;
+    #ifdef USE_ONNX
+        std::unique_ptr<ModelInferenceONNX> model_inference;
+    #else
+        std::unique_ptr<ModelInferenceTorch> model_inference;
+    #endif
     InterpolateSparse2d interpolator;
     int top_k;
     float detection_threshold;

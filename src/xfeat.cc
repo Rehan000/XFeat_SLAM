@@ -6,13 +6,19 @@
 XFeat::XFeat(const std::string& model_path, int top_k, float detection_threshold)
     : top_k(top_k),
       detection_threshold(detection_threshold),
-      model_inference(model_path.c_str()),
       device(torch::kCPU)  // Default device initialization to CPU
 {
+    #ifdef USE_ONNX
+        model_inference = std::make_unique<ModelInferenceONNX>(model_path.c_str());
+    #else
+        model_inference = std::make_unique<ModelInferenceTorch>(model_path);
+    #endif
+
     // Now check if CUDA is available and change device accordingly
     if (torch::cuda::is_available()) {
         device = torch::Device(torch::kCUDA);
         std::cout << "LibTorch: CUDA Enabled!" << std::endl;
+
     }
     else
     {
@@ -120,26 +126,45 @@ std::vector<KeypointData> XFeat::detectAndCompute(const cv::Mat& input_image) {
 
     std::vector<KeypointData> keypoint_data;
 
-    // Convert the input image to a vector of floats
-    std::vector<float> input_data;
-    input_data.assign(input_image.begin<float>(), input_image.end<float>());
-    std::vector<std::vector<float>> input_tensor = {input_data};
+    #ifdef USE_ONNX
+        // Convert the input image to a vector of floats
+        std::vector<float> input_data;
+        input_data.assign(input_image.begin<float>(), input_image.end<float>());
+        std::vector<std::vector<float>> input_tensor = {input_data};
 
-    // Run model inference
-    auto output_tensors = model_inference.RunInference(input_tensor);
+        // Run model inference
+        auto output_tensors = model_inference->RunInference(input_tensor);
 
-    // M1: Features (1, 64, 60, 80)
-    Ort::Value& M1_tensor = output_tensors[0];
-    torch::Tensor M1 = OrtValueToTorchTensor(M1_tensor, device);
-    M1 = torch::nn::functional::normalize(M1, torch::nn::functional::NormalizeFuncOptions().p(2).dim(1));
+        // M1: Features (1, 64, 60, 80)
+        Ort::Value& M1_tensor = output_tensors[0];
+        torch::Tensor M1 = OrtValueToTorchTensor(M1_tensor, device);
+        M1 = torch::nn::functional::normalize(M1, torch::nn::functional::NormalizeFuncOptions().p(2).dim(1));
 
-    // K1: Keypoints (1, 65, 60, 80)
-    Ort::Value& K1_tensor = output_tensors[1];
-    torch::Tensor K1 = OrtValueToTorchTensor(K1_tensor, device);
+        // K1: Keypoints (1, 65, 60, 80)
+        Ort::Value& K1_tensor = output_tensors[1];
+        torch::Tensor K1 = OrtValueToTorchTensor(K1_tensor, device);
 
-    // H1: Heatmap (1, 1, 60, 80)
-    Ort::Value& H1_tensor = output_tensors[2];
-    torch::Tensor H1 = OrtValueToTorchTensor(H1_tensor, device);
+        // H1: Heatmap (1, 1, 60, 80)
+        Ort::Value& H1_tensor = output_tensors[2];
+        torch::Tensor H1 = OrtValueToTorchTensor(H1_tensor, device);
+    
+    #else
+        torch::Tensor tensor_image = torch::from_blob(input_image.data, {1, input_image.rows, input_image.cols, input_image.channels()}, torch::kFloat32).to(device);
+        tensor_image = tensor_image.permute({0, 3, 1, 2});
+
+        // Run model inference
+        auto output_tensors = model_inference->RunInference(tensor_image);
+
+        // M1: Features (1, 64, 60, 80)
+        torch::Tensor M1 = output_tensors[0];
+        M1 = torch::nn::functional::normalize(M1, torch::nn::functional::NormalizeFuncOptions().p(2).dim(1));
+
+        // K1: Keypoints (1, 65, 60, 80)
+        torch::Tensor K1 = output_tensors[1];
+
+        // H1: Heatmap (1, 1, 60, 80)
+        torch::Tensor H1 = output_tensors[2];
+    #endif
 
     // Convert logits to heatmap and extract keypoints
     torch::Tensor K1h = getKptsHeatmap(K1);

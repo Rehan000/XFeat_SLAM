@@ -14,7 +14,11 @@ The repo is an attempt to build a monocular SLAM system based on XFeat (Accelera
 The XFeat model is converted to ONNX format, there are two versions of the models provided with the repo:
 
 :arrow_right: xfeat_vga.onnx (VGA input size (640x480)) <br>
-:arrow_right: xfeat.onnx (Input size (1280x1024))
+:arrow_right: xfeat.onnx (Input size (1280x1024)) <br>
+
+Torch model is also provided, with the option to select between the ONNX or torch models.
+
+:arrow_right: xfeat.pt <br>
 
 
 ## Installation
@@ -35,7 +39,7 @@ After the dependencies are added compile and build:
 ```bash 
 mkdir build
 cd build
-cmake .. -DUSE_CUDA=ON
+cmake .. -DUSE_CUDA=ON -DUSE_ONNX=ON
 make
 ```
 
