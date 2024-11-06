@@ -14,6 +14,10 @@ XFeat::XFeat(const std::string& model_path, int top_k, float detection_threshold
         device = torch::Device(torch::kCUDA);
         std::cout << "LibTorch: CUDA Enabled!" << std::endl;
     }
+    else
+    {
+        std::cout << "LibTorch: CUDA Not Found!" << std::endl;
+    }
 
     interpolator = InterpolateSparse2d("bicubic", false, device);
 }

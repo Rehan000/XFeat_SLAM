@@ -13,7 +13,6 @@ ModelInference::ModelInference(const char* model_path)
     #endif
     
     session_options.SetGraphOptimizationLevel(ORT_ENABLE_ALL);
-    // session_options.SetIntraOpNumThreads(4);
     num_input_nodes = session.GetInputCount();
     num_output_nodes = session.GetOutputCount();
 

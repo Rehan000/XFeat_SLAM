@@ -25,6 +25,12 @@ onnxruntime 1.20.0
 opencv 4.5.4
 ```
 
+The following CUDA and cuDNN versions are used:
+```bash
+CUDA 12.4
+cuDNN 9.5.1
+```
+
 After the dependencies are added compile and build:
 ```bash 
 mkdir build
