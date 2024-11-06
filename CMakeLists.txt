@@ -24,6 +24,21 @@ endif()
 # Set CMAKE_PREFIX_PATH to point to libtorch
 set(CMAKE_PREFIX_PATH "${LIBTORCH_ROOT}")
 
+# Option to use CUDA
+option(USE_CUDA "Enable CUDA support" ON)
+
+# Check for CUDA if USE_CUDA is enabled
+if(USE_CUDA)
+    find_package(CUDA)
+    if(CUDA_FOUND)
+        message(STATUS "CUDA found, enabling CUDA support.")
+        add_definitions(-DUSE_CUDA)
+    else()
+        message(WARNING "CUDA not found, disabling CUDA support.")
+        set(USE_CUDA OFF)
+    endif()
+endif()
+
 # Include directories
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/inc)
 include_directories(${OPENCV_ROOT}/include)
@@ -52,16 +67,25 @@ find_package(Torch REQUIRED)
 target_link_directories(xfeat_slam PRIVATE ${ONNXRUNTIME_ROOT}/lib)
 target_link_libraries(xfeat_slam onnxruntime)
 
-# Link OpenCV
+# Link OpenCV 
 target_link_directories(xfeat_slam PRIVATE ${OPENCV_ROOT}/lib)
 target_link_libraries(xfeat_slam opencv_core opencv_imgproc opencv_highgui opencv_imgcodecs)
 
 # Link libtorch
 target_link_libraries(xfeat_slam "${TORCH_LIBRARIES}")
 
+# Link CUDA libraries if enabled
+if(USE_CUDA)
+    set(CUDA_LIB_PATH "/usr/local/cuda-12.4/lib64")
+    target_link_directories(xfeat_slam PRIVATE ${CUDA_LIB_PATH})
+    target_link_libraries(xfeat_slam ${CUDA_LIBRARIES} ${CUDA_CUDART_LIBRARY})
+    target_link_libraries(xfeat_slam cudart)
+endif()
+
 # Set C++ standard
 set_target_properties(xfeat_slam PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED YES)
 
 # Ensure the project uses the correct flags
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+
 

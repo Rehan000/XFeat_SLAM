@@ -4,6 +4,14 @@
 ModelInference::ModelInference(const char* model_path) 
     : env(ORT_LOGGING_LEVEL_WARNING, "ONNXRuntime"), session_options(), session(env, model_path, session_options) {
 
+    // Set CUDA Execution Provider if available
+    #ifdef USE_CUDA
+        Ort::ThrowOnError(OrtSessionOptionsAppendExecutionProvider_CUDA(session_options, 0));
+        std::cout << "ONNXRuntime: CUDA Execution Provider enabled." << std::endl;
+    #else
+        std::cout << "ONNXRuntime: Using CPU Execution Provider." << std::endl;
+    #endif
+    
     session_options.SetGraphOptimizationLevel(ORT_ENABLE_ALL);
     // session_options.SetIntraOpNumThreads(4);
     num_input_nodes = session.GetInputCount();

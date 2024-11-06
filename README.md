@@ -20,8 +20,8 @@ The XFeat model is converted to ONNX format, there are two versions of the model
 ## Installation
 The following dependencies must be built in the third-party folder:
 ```bash
-libtorch 2.5.0+cu118
-onnxruntime 1.19.2 
+libtorch 2.5.1+cu124
+onnxruntime 1.20.0
 opencv 4.5.4
 ```
 
@@ -29,7 +29,7 @@ After the dependencies are added compile and build:
 ```bash 
 mkdir build
 cd build
-cmake ..
+cmake .. -DUSE_CUDA=ON
 make
 ```
 
