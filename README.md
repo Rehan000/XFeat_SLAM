@@ -39,13 +39,6 @@ Additionally, a TorchScript version of the model is included:
    - Detects high-quality, sparse keypoints using XFeat's heatmap-based approach.
    - Performs robust feature matching with cosine similarity and mutual nearest neighbor filtering.
 
-2. **Pose Estimation**:
-   - Computes relative camera motion using the Essential Matrix and recovers the pose (rotation and translation).
-
-3. **Sparse Mapping**:
-   - Triangulates 3D points from matched keypoints across frames.
-   - Maintains a sparse map of key landmarks.
-
 4. **Visualization**:
    - Real-time display of keypoints, matches, and system performance metrics (e.g., FPS).
 
