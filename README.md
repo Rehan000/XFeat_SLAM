@@ -1,50 +1,118 @@
-# XFeat (Accelerated Features) SLAM
+# XFeat SLAM (Accelerated Features for Monocular SLAM)
 
 <p align="center">
-  <img src="assets/xfeat_slam.gif">
+  <img src="assets/xfeat_slam.gif" alt="XFeat SLAM in action">
 </p>
+
+---
 
 ## Table of Contents
 - [Introduction](#introduction)
+- [Features](#features)
 - [Installation](#installation)
 - [Usage](#usage)
+- [License](#license)
+
+---
 
 ## Introduction
-The repo is an attempt to build a monocular SLAM system based on XFeat (Accelerated Features) local features. 
-The XFeat model is converted to ONNX format, there are two versions of the models provided with the repo:
 
-:arrow_right: xfeat_vga.onnx (VGA input size (640x480)) <br>
-:arrow_right: xfeat.onnx (Input size (1280x1024)) <br>
+**XFeat SLAM** is a monocular SLAM system designed around the XFeat (Accelerated Features) local feature detection and matching framework. The system supports feature extraction, pose estimation, and 3D reconstruction, enabling simultaneous localization and mapping with high efficiency and precision.
 
-Torch model is also provided, with the option to select between the ONNX or torch models.
+Key highlights:
+- **Modular Architecture**: Designed for extensibility, supporting both ONNX and Torch inference pipelines.
+- **Cross-Platform Compatibility**: Runs on CPU or CUDA-enabled GPUs.
+- **Real-Time Performance**: Optimized for low-latency processing using modern libraries like ONNX Runtime and LibTorch.
 
-:arrow_right: xfeat.pt <br>
+Two versions of the XFeat model are provided:
+- `xfeat_vga.onnx`: Optimized for VGA input size (640x480).
+- `xfeat.onnx`: Designed for higher-resolution inputs (1280x1024).
 
+Additionally, a TorchScript version of the model is included:
+- `xfeat.pt`
+
+---
+
+## Features
+
+1. **Keypoint Detection and Matching**:
+   - Detects high-quality, sparse keypoints using XFeat's heatmap-based approach.
+   - Performs robust feature matching with cosine similarity and mutual nearest neighbor filtering.
+
+2. **Pose Estimation**:
+   - Computes relative camera motion using the Essential Matrix and recovers the pose (rotation and translation).
+
+3. **Sparse Mapping**:
+   - Triangulates 3D points from matched keypoints across frames.
+   - Maintains a sparse map of key landmarks.
+
+4. **Visualization**:
+   - Real-time display of keypoints, matches, and system performance metrics (e.g., FPS).
+
+5. **Model Flexibility**:
+   - Seamlessly switch between ONNX and Torch-based inference pipelines based on user requirements.
+
+---
 
 ## Installation
-The following dependencies must be built in the third-party folder:
+
+### Dependencies
+
+The following dependencies must be built in the `third-party` folder:
+
 ```bash
 libtorch 2.5.1+cu124
 onnxruntime 1.20.0
 opencv 4.5.4
 ```
 
-The following CUDA and cuDNN versions are used:
+Ensure you have the following CUDA and cuDNN versions installed:
+
 ```bash
 CUDA 12.4
 cuDNN 9.5.1
 ```
 
-After the dependencies are added compile and build:
-```bash 
-mkdir build
-cd build
-cmake .. -DUSE_CUDA=ON -DUSE_ONNX=ON
-make
-```
+### Build Instructions
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your_username/xfeat_slam.git
+   cd xfeat_slam
+   ```
+
+2. Create a build directory and compile the project:
+   ```bash
+   mkdir build
+   cd build
+   cmake .. -DUSE_CUDA=ON -DUSE_ONNX=ON
+   make
+   ```
+
+---
 
 ## Usage
-Run the following to start:
-```bash 
+
+### Running the SLAM System
+
+To run XFeat SLAM on a sequence of images:
+```bash
 ./xfeat_slam <path_to_model> <path_to_images_directory>
 ```
+
+Example:
+```bash
+./xfeat_slam ../models/xfeat.onnx ../data/images/
+```
+
+### Model Options
+Specify the desired model format:
+- For ONNX: Provide the `.onnx` model path.
+- For TorchScript: Provide the `.pt` model path and ensure the `-DUSE_ONNX=OFF` flag is set during build.
+
+---
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+---
