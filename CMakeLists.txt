@@ -55,6 +55,8 @@ add_executable(xfeat_slam
     src/interpolate_sparse_2d.cc
     src/xfeat.cc
     src/visualize.cc
+    src/pose_estimation.cc
+    src/utils.cc
 )
 
 # Include directories
