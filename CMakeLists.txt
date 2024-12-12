@@ -46,6 +46,14 @@ if(USE_CUDA)
     endif()
 endif()
 
+# Add preprocessor definition based on USE_ONNX
+if(USE_ONNX)
+    message(STATUS "ONNX inference enabled.")
+    add_definitions(-DUSE_ONNX)
+else()
+    message(STATUS "Torch inference enabled.")
+endif()
+
 # Add executable
 add_executable(xfeat_slam 
     src/main.cc
