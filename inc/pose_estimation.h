@@ -5,6 +5,7 @@
 #include <opencv2/opencv.hpp>
 #include <vector>
 #include <torch/torch.h> 
+#include <Eigen/Dense>
 
 class PoseEstimation {
 public:
@@ -14,10 +15,17 @@ public:
     // Estimate relative pose between two frames
     bool estimatePose(const torch::Tensor& pts_1, 
                       const torch::Tensor& pts_2,
-                      cv::Mat& R, cv::Mat& t);
+                      cv::Mat& R, cv::Mat& t,
+                      std::vector<cv::Point2f>& points1_out_filtered,
+                      std::vector<cv::Point2f>& points2_out_filtered,
+                      std::vector<cv::Point2f>& points1_out,
+                      std::vector<cv::Point2f>& points2_out);
 
     // Convert Torch tensors to vector Point2f
     std::vector<cv::Point2f> convertToPoints(const torch::Tensor& tensor);
+
+    // Convert R and t into transformation matrix
+    Eigen::Matrix4d ConvertToHomogeneous(const cv::Mat& R, const cv::Mat& t);
 
 private:
     cv::Mat camera_intrinsics_; // Camera intrinsic matrix

@@ -10,8 +10,12 @@ PoseEstimation::PoseEstimation(const cv::Mat& camera_intrinsics)
 // Estimate relative pose between two frames
 bool PoseEstimation::estimatePose(const torch::Tensor& pts_1, 
                                   const torch::Tensor& pts_2,
-                                  cv::Mat& R, cv::Mat& t) {
-    
+                                  cv::Mat& R, cv::Mat& t,
+                                  std::vector<cv::Point2f>& points1_out_filtered,
+                                  std::vector<cv::Point2f>& points2_out_filtered,
+                                  std::vector<cv::Point2f>& points1_out,
+                                  std::vector<cv::Point2f>& points2_out) {
+
     std::vector<cv::Point2f> points1 = convertToPoints(pts_1);
     std::vector<cv::Point2f> points2 = convertToPoints(pts_2);
 
@@ -28,13 +32,30 @@ bool PoseEstimation::estimatePose(const torch::Tensor& pts_1,
         return false;
     }
 
+    // Mask to store inlier/outlier information
+    cv::Mat inlier_mask;
+
     // Recover pose (rotation and translation)
-    int inliers = cv::recoverPose(essential_matrix, points1, points2, camera_intrinsics_, R, t);
+    int inliers = cv::recoverPose(essential_matrix, points1, points2, camera_intrinsics_, R, t, inlier_mask);
 
     if (inliers < 8) {
         std::cerr << "Error: Insufficient inliers for reliable pose estimation." << std::endl;
         return false;
     }
+
+    // Filter inlier points based on the inlier mask
+    points1_out_filtered.clear();
+    points2_out_filtered.clear();
+    for (int i = 0; i < inlier_mask.rows; ++i) {
+        if (inlier_mask.at<uchar>(i)) {
+            points1_out_filtered.push_back(points1[i]);
+            points2_out_filtered.push_back(points2[i]);
+        }
+    }
+
+    // Keypoints
+    points1_out = points1;
+    points2_out = points2;
 
     // std::cout << "Pose estimation successful with " << inliers << " inliers." << std::endl;
     return true;
@@ -45,15 +66,21 @@ std::vector<cv::Point2f> PoseEstimation::convertToPoints(const torch::Tensor& te
     // Ensure tensor is on CPU and contiguous
     auto tensor_cpu = tensor.to(torch::kCPU).contiguous();
 
-    // Access tensor data
-    const float* data_ptr = tensor_cpu.data_ptr<float>();
-
-    // Create cv::Point2f vector
-    std::vector<cv::Point2f> points;
-    points.reserve(tensor.size(0));
-    for (int i = 0; i < tensor.size(0); ++i) {
-        points.emplace_back(data_ptr[2 * i], data_ptr[2 * i + 1]);
-    }
+    // Access tensor data and create cv::Mat view
+    cv::Mat mat(tensor.size(0), 1, CV_32FC2, (void*)tensor_cpu.data_ptr<float>());
     
-    return points;
+    // Convert cv::Mat to vector<cv::Point2f>
+    return std::vector<cv::Point2f>(mat.begin<cv::Point2f>(), mat.end<cv::Point2f>());
+}
+
+// Convert R and t into transformation matrix
+Eigen::Matrix4d PoseEstimation::ConvertToHomogeneous(const cv::Mat& R, const cv::Mat& t) {
+    Eigen::Matrix4d T = Eigen::Matrix4d::Identity();
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            T(i, j) = R.at<double>(i, j);
+        }
+        T(i, 3) = t.at<double>(i, 0);
+    }
+    return T;
 }

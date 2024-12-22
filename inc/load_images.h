@@ -2,24 +2,25 @@
 #define LOAD_IMAGES_H
 
 #include <opencv2/opencv.hpp>
-#include <string>
 #include <vector>
+#include <string>
 #include <filesystem>
 
 class ImageLoader {
 public:
-    // Constructor that takes the directory path
-    ImageLoader(const std::string& directory);
+    // Constructor
+    ImageLoader(const std::string& directory, bool is_rgb = false);
 
-    // Function to load images one by one in grayscale, resize, normalize, and return
+    // Load the next image
     bool loadNextImage(cv::Mat& output_image);
 
 private:
-    std::vector<std::string> image_paths;
-    size_t current_image_index = 0;
-
-    // Helper function to load all image file paths from the given directory
+    // Helper function to load image paths from the directory
     void loadImagePaths(const std::string& directory);
+
+    std::vector<std::string> image_paths; // Stores paths to image files
+    size_t current_image_index = 0;       // Tracks the current image index
+    bool is_rgb_;                         // Flag to load images in RGB or grayscale
 };
 
-#endif
+#endif // LOAD_IMAGES_H

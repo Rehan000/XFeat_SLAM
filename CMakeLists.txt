@@ -60,11 +60,13 @@ add_executable(xfeat_slam
     src/model_inference_onnx.cc
     src/model_inference_torch.cc
     src/load_images.cc
+    src/load_data.cc
     src/interpolate_sparse_2d.cc
     src/xfeat.cc
     src/visualize.cc
     src/pose_estimation.cc
     src/utils.cc
+    src/frame_manager.cc
 )
 
 # Include directories
