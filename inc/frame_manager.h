@@ -28,9 +28,9 @@ private:
     int max_frames; // Maximum number of recent frames to store
 
     // Thresholds for keyframe selection
-    const double translation_threshold = 1.0; // Adjust as needed
-    const double rotation_threshold = 15.0;  // In degrees
-    const int min_inliers = 20;              // Minimum number of matches
+    const double translation_threshold = 0.5; // Adjust as needed
+    const double rotation_threshold = 10.0;  // In degrees
+    const int min_inliers = 30;              // Minimum number of matches
 
     // Helper function to determine if a frame qualifies as a keyframe
     bool isKeyframe(const Frame& current_frame, const Frame& last_keyframe, int num_inliers);

@@ -12,21 +12,13 @@ FrameManager::FrameManager(int max_frames)
 bool FrameManager::isKeyframe(const Frame& current_frame, const Frame& last_keyframe, int num_inliers) {
     // Compute translation distance
     Eigen::Vector3d translation = current_frame.pose.block<3, 1>(0, 3) - last_keyframe.pose.block<3, 1>(0, 3);
-
-    // std::cout << "Translation: " << translation << std::endl;
-
     double translation_distance = translation.norm();
-
-    // std::cout << "Translation Distance: " << translation_distance << std::endl;
 
     // Compute rotation angle
     Eigen::Matrix3d R_current = current_frame.pose.block<3, 3>(0, 0);
     Eigen::Matrix3d R_last = last_keyframe.pose.block<3, 3>(0, 0);
     Eigen::Matrix3d R_diff = R_current.transpose() * R_last;
     double rotation_angle = std::acos((R_diff.trace() - 1) / 2.0) * (180.0 / M_PI);
-
-    // std::cout << "Rotation Angle: " << rotation_angle << std::endl;
-    // std::cout << "Inliers: " << num_inliers << std::endl;
 
     // Check thresholds
     return (translation_distance > translation_threshold || rotation_angle > rotation_threshold || num_inliers < min_inliers);

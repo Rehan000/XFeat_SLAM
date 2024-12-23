@@ -28,7 +28,7 @@ public:
      * @return True if the frame was loaded successfully, false if no more frames are available.
      */
     bool loadNextFrame(cv::Mat& rgb_image, cv::Mat& depth_image, double& timestamp,
-                       std::vector<double>& accel_values, std::vector<double>& groundtruth_values);
+                       std::vector<double>& accel_values, std::vector<double>& groundtruth_values, float depth_scale_factor = 5000.0);
 
 private:
     /**

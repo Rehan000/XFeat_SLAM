@@ -71,20 +71,21 @@ int main(int argc, char* argv[]) {
         cv::Mat R, t;
         std::vector<cv::Point2f> points1_out_filtered, points2_out_filtered;
         std::vector<cv::Point2f> points1_out, points2_out;
-        if (pose_estimator.estimatePose(pts_1, pts_2, R, t, points1_out_filtered, points2_out_filtered, points1_out, points2_out)) 
+        // if (pose_estimator.estimatePose(pts_1, pts_2, R, t, points1_out_filtered, points2_out_filtered, points1_out, points2_out))
+        if (pose_estimator.estimatePoseWithDepth(depth_image1, depth_image2, pts_1, pts_2, R, t, points1_out_filtered, points2_out_filtered, points1_out, points2_out))
         {
             Eigen::Matrix4d T = pose_estimator.ConvertToHomogeneous(R, t);
             global_pose = global_pose * T;
             current_frame.pose = global_pose;
 
-            std::cout << "Rotation Matrix: \n" << R << std::endl;
-            std::cout << "Translation Matrix: \n" << t << std::endl;
-            std::cout << "Transformation Matrix: \n" << T << std::endl;
-            std::cout << "Global Pose: \n" << global_pose << std::endl;
+            // std::cout << "Rotation Matrix: \n" << R << std::endl;
+            // std::cout << "Translation Matrix: \n" << t << std::endl;
+            // std::cout << "Transformation Matrix: \n" << T << std::endl;
+            // std::cout << "Global Pose: \n" << global_pose << std::endl;
         }
 
         // Add the frame to the manager
-        // frame_manager.addFrame(current_frame, points1_out_filtered.size());
+        frame_manager.addFrame(current_frame, points1_out_filtered.size());
 
         end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<float> duration = end - start;

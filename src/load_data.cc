@@ -124,7 +124,7 @@ void RGBDLoader::synchronize() {
 }
 
 bool RGBDLoader::loadNextFrame(cv::Mat& rgb_image, cv::Mat& depth_image, double& timestamp,
-                               std::vector<double>& accel_values, std::vector<double>& groundtruth_values) {
+                               std::vector<double>& accel_values, std::vector<double>& groundtruth_values, float depth_scale_factor) {
     if (current_index >= synchronized_pairs.size()) {
         return false;
     }
@@ -145,7 +145,8 @@ bool RGBDLoader::loadNextFrame(cv::Mat& rgb_image, cv::Mat& depth_image, double&
         return false;
     }
 
-    depth_image.convertTo(depth_image, CV_32F, 1.0 / 5000.0);
+    // Convert depth image to meters
+    depth_image.convertTo(depth_image, CV_32F, 1.0 / depth_scale_factor);
 
     accel_values = accel_data;
     groundtruth_values = gt_data;

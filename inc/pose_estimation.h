@@ -21,6 +21,17 @@ public:
                       std::vector<cv::Point2f>& points1_out,
                       std::vector<cv::Point2f>& points2_out);
 
+    // Estimate relative pose using depth information
+    bool estimatePoseWithDepth(const cv::Mat& depth1, 
+                               const cv::Mat& depth2,
+                               const torch::Tensor& pts_1, 
+                               const torch::Tensor& pts_2,
+                               cv::Mat& R, cv::Mat& t,
+                               std::vector<cv::Point2f>& points1_out_filtered,
+                               std::vector<cv::Point2f>& points2_out_filtered,
+                               std::vector<cv::Point2f>& points1_out,
+                               std::vector<cv::Point2f>& points2_out);
+
     // Convert Torch tensors to vector Point2f
     std::vector<cv::Point2f> convertToPoints(const torch::Tensor& tensor);
 
