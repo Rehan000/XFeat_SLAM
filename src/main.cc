@@ -32,9 +32,6 @@ int main(int argc, char* argv[]) {
     // Create FrameManager object
     FrameManager frame_manager(5); // Max number of frames to be stored
 
-    // Global pose
-    Eigen::Matrix4d global_pose = Eigen::Matrix4d::Identity();
-
     // Variables for calculating FPS
     std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
     float fps = 0.0;
@@ -74,14 +71,13 @@ int main(int argc, char* argv[]) {
         // if (pose_estimator.estimatePose(pts_1, pts_2, R, t, points1_out_filtered, points2_out_filtered, points1_out, points2_out))
         if (pose_estimator.estimatePoseWithDepth(depth_image1, depth_image2, pts_1, pts_2, R, t, points1_out_filtered, points2_out_filtered, points1_out, points2_out))
         {
-            Eigen::Matrix4d T = pose_estimator.ConvertToHomogeneous(R, t);
-            global_pose = global_pose * T;
+            Eigen::Matrix4d global_pose = pose_estimator.getGlobalPose();
             current_frame.pose = global_pose;
 
             // std::cout << "Rotation Matrix: \n" << R << std::endl;
             // std::cout << "Translation Matrix: \n" << t << std::endl;
             // std::cout << "Transformation Matrix: \n" << T << std::endl;
-            // std::cout << "Global Pose: \n" << global_pose << std::endl;
+            std::cout << "Global Pose: \n" << global_pose << std::endl;
         }
 
         // Add the frame to the manager

@@ -5,7 +5,7 @@
 
 // Constructor
 PoseEstimation::PoseEstimation(const cv::Mat& camera_intrinsics) 
-    : camera_intrinsics_(camera_intrinsics.clone()) {}
+    : camera_intrinsics_(camera_intrinsics.clone()), global_pose_(Eigen::Matrix4d::Identity()) {}
 
 // Estimate relative pose between two frames
 bool PoseEstimation::estimatePose(const torch::Tensor& pts_1, 
@@ -56,6 +56,10 @@ bool PoseEstimation::estimatePose(const torch::Tensor& pts_1,
     // Keypoints
     points1_out = points1;
     points2_out = points2;
+
+    // Update the global pose
+    Eigen::Matrix4d T = ConvertToHomogeneous(R, t);
+    global_pose_ = global_pose_ * T;
 
     // std::cout << "Pose estimation successful with " << inliers << " inliers." << std::endl;
     return true;
@@ -124,6 +128,10 @@ bool PoseEstimation::estimatePoseWithDepth(
     points1_out = points1;
     points2_out = points2;
 
+    // Update the global pose
+    Eigen::Matrix4d T = ConvertToHomogeneous(R, t);
+    global_pose_ = global_pose_ * T;
+
     return true;
 }
 
@@ -149,4 +157,9 @@ Eigen::Matrix4d PoseEstimation::ConvertToHomogeneous(const cv::Mat& R, const cv:
         T(i, 3) = t.at<double>(i, 0);
     }
     return T;
+}
+
+// Get the global pose
+Eigen::Matrix4d PoseEstimation::getGlobalPose() const {
+    return global_pose_;
 }

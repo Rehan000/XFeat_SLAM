@@ -38,8 +38,12 @@ public:
     // Convert R and t into transformation matrix
     Eigen::Matrix4d ConvertToHomogeneous(const cv::Mat& R, const cv::Mat& t);
 
+    // Get the global pose
+    Eigen::Matrix4d getGlobalPose() const;
+
 private:
     cv::Mat camera_intrinsics_; // Camera intrinsic matrix
+    Eigen::Matrix4d global_pose_; // Global pose of the camera
 };
 
 #endif // POSE_ESTIMATION_H
