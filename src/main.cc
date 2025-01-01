@@ -2,7 +2,6 @@
 #include "load_data.h"
 #include "xfeat.h"
 #include "pose_estimation.h"
-#include "visualize.h"
 #include "utils.h"
 #include "frame_manager.h"
 
@@ -48,7 +47,7 @@ int main(int argc, char* argv[]) {
     while (hasNextImage) {
         std::cout << "Start iteration: " << frame_id << std::endl;
 
-         // Create a new frame
+        // Create a new frame
         Frame current_frame(frame_id++, rgb_image1);
 
         hasNextImage = loader.loadNextFrame(rgb_image2, depth_image2, timestamp2, accel_values2, groundtruth_values2);
@@ -68,18 +67,15 @@ int main(int argc, char* argv[]) {
         cv::Mat R, t;
         std::vector<cv::Point2f> points1_out_filtered, points2_out_filtered;
         std::vector<cv::Point2f> points1_out, points2_out;
-        // if (pose_estimator.estimatePose(pts_1, pts_2, R, t, points1_out_filtered, points2_out_filtered, points1_out, points2_out))
+
         if (pose_estimator.estimatePoseWithDepth(depth_image1, depth_image2, pts_1, pts_2, R, t, points1_out_filtered, points2_out_filtered, points1_out, points2_out))
         {
             Eigen::Matrix4d global_pose = pose_estimator.getGlobalPose();
             current_frame.pose = global_pose;
 
-            // std::cout << "Rotation Matrix: \n" << R << std::endl;
-            // std::cout << "Translation Matrix: \n" << t << std::endl;
-            // std::cout << "Transformation Matrix: \n" << T << std::endl;
-            std::cout << "Global Pose: \n" << global_pose << std::endl;
+            // std::cout << "Global Pose: \n" << global_pose << std::endl;
         }
-
+        
         // Add the frame to the manager
         frame_manager.addFrame(current_frame, points1_out_filtered.size());
 

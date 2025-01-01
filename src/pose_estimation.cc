@@ -1,6 +1,7 @@
 // pose_estimation.cc
 #include "pose_estimation.h"
 #include <opencv2/calib3d.hpp>
+#include <opencv2/core/eigen.hpp>
 #include <iostream>
 
 // Constructor

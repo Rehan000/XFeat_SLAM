@@ -12,7 +12,7 @@ public:
     // Constructor
     PoseEstimation(const cv::Mat& camera_intrinsics);
 
-    // Estimate relative pose between two frames
+    // Estimate pose between two frames
     bool estimatePose(const torch::Tensor& pts_1, 
                       const torch::Tensor& pts_2,
                       cv::Mat& R, cv::Mat& t,
@@ -21,7 +21,7 @@ public:
                       std::vector<cv::Point2f>& points1_out,
                       std::vector<cv::Point2f>& points2_out);
 
-    // Estimate relative pose using depth information
+    // Estimate pose using depth information
     bool estimatePoseWithDepth(const cv::Mat& depth1, 
                                const cv::Mat& depth2,
                                const torch::Tensor& pts_1, 

@@ -39,11 +39,19 @@ Additionally, a TorchScript version of the model is included:
    - Detects high-quality, sparse keypoints using XFeat's heatmap-based approach.
    - Performs robust feature matching with cosine similarity and mutual nearest neighbor filtering.
 
-4. **Visualization**:
-   - Real-time display of keypoints, matches, and system performance metrics (e.g., FPS).
+2. **Pose Estimation**:
+   - Computes relative pose (rotation and translation) between frames using depth and matched features.
+   - Includes global pose estimation and filtering of outlier matches.
 
-5. **Model Flexibility**:
+3. **Frame Management**:
+   - Maintains a sliding window of frames to optimize performance.
+   - Enables real-time tracking of keypoints and poses across frames.
+
+4. **Model Flexibility**:
    - Seamlessly switch between ONNX and Torch-based inference pipelines based on user requirements.
+
+5. **CUDA Acceleration**:
+   - Leverages CUDA for GPU-accelerated feature detection, matching, and pose estimation.
 
 ---
 
@@ -57,6 +65,7 @@ The following dependencies must be built in the `third-party` folder:
 libtorch 2.5.1+cu124
 onnxruntime 1.20.0
 opencv 4.5.4
+pangolin (latest stable release)
 ```
 
 Ensure you have the following CUDA and cuDNN versions installed:
@@ -70,7 +79,7 @@ cuDNN 9.5.1
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your_username/xfeat_slam.git
+   git clone https://github.com/Rehan000/xfeat_slam.git
    cd xfeat_slam
    ```
 
@@ -90,22 +99,34 @@ cuDNN 9.5.1
 
 To run XFeat SLAM on a sequence of images:
 ```bash
-./xfeat_slam <path_to_model> <path_to_images_directory>
+./xfeat_slam <path_to_model> <path_to_images_directory> <path_to_intrinsics_file>
 ```
 
 Example:
 ```bash
-./xfeat_slam ../models/xfeat.onnx ../data/images/
+./xfeat_slam ../models/xfeat.onnx ../data/images/ ../data/intrinsics.txt
 ```
 
 ### Model Options
+
 Specify the desired model format:
-- For ONNX: Provide the `.onnx` model path.
-- For TorchScript: Provide the `.pt` model path and ensure the `-DUSE_ONNX=OFF` flag is set during build.
+- **ONNX**: Provide the `.onnx` model path.
+- **TorchScript**: Provide the `.pt` model path and ensure the `-DUSE_ONNX=OFF` flag is set during build.
+
+### Camera Intrinsics File
+
+Ensure the intrinsics file is in txt format with the following format. Example:
+```
+fx 0  cx
+0  fy cy
+0  0  1
+```
 
 ---
+
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ---
+
