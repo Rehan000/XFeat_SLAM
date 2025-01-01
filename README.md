@@ -1,4 +1,4 @@
-# XFeat SLAM (Accelerated Features for Monocular SLAM)
+# XFeat (Accelerated Features) SLAM 
 
 <p align="center">
   <img src="assets/xfeat_slam.gif" alt="XFeat SLAM in action">
